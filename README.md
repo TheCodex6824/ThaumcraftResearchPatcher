@@ -1,0 +1,2 @@
+# Thaumcraft Research Patcher
+Thaumcraft Research Patcher allows modpack makers to add or modify Thaumcraft research using JSON files. This allows nearly any edit to the research to be accomplished, from modifying the research path to remove certain game mechanics to integrating other mods directly into the research progression.

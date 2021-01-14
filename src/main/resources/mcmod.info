@@ -1,0 +1,17 @@
+[
+{
+  "modid": "tcresearchpatcher",
+  "name": "Thaumcraft Research Patcher",
+  "description": "Allows adding and patching Thaumcraft research with user-defined JSON files.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["TheCodex6824"],
+  "logoFile": "assets/tcresearchpatcher/logo.png",
+  "screenshots": [],
+  "useDependencyInformation": true,
+  "requiredMods": ["forge@[${forgeversion},)", "thaumcraft@[6.1.BETA26,)"],
+  "dependencies": ["thaumcraft"]
+}
+]
