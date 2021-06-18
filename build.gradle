@@ -51,8 +51,8 @@ minecraft {
         replaceIn 'TCResearchPatcherContainer.java'
     }
     
-    clientJvmArgs += '-Dfml.coreMods.load=thecodex6824.tcresearchpatcher.TCResearchPatcher'
-    serverJvmArgs += '-Dfml.coreMods.load=thecodex6824.tcresearchpatcher.TCResearchPatcher'
+    clientJvmArgs += ('-Dfml.coreMods.load=thecodex6824.tcresearchpatcher.TCResearchPatcher' + System.getProperty("line.separator"))
+    serverJvmArgs += ('-Dfml.coreMods.load=thecodex6824.tcresearchpatcher.TCResearchPatcher' + System.getProperty("line.separator"))
 }
 
 dependencies {

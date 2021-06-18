@@ -1,4 +1,4 @@
-package thecodex6824.tcresearchpatcher;
+package thecodex6824.tcresearchpatcher.patch;
 
 import javax.annotation.Nullable;
 
