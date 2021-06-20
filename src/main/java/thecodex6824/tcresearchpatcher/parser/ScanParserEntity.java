@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import thaumcraft.api.ThaumcraftApi;
+import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ScanEntity;
 import thecodex6824.tcresearchpatcher.api.IScanParser;
@@ -54,7 +55,7 @@ public class ScanParserEntity implements IScanParser {
                     tcNbt = new ThaumcraftApi.EntityTagsNBT[tag.getSize()];
                     int i = 0;
                     for (String s : tag.getKeySet()) {
-                        tcNbt[i] = new ThaumcraftApi.EntityTagsNBT(s, tag.getTag(s));
+                        tcNbt[i] = new ThaumcraftApi.EntityTagsNBT(s, ThaumcraftApiHelper.getNBTDataFromId(tag, tag.getTagId(s), s));
                         ++i;
                     }
                 }
