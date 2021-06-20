@@ -12,15 +12,17 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ScanItem;
 import thecodex6824.tcresearchpatcher.api.IScanParser;
+import thecodex6824.tcresearchpatcher.extended.ScanItemExtended;
 import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
 import thecodex6824.tcresearchpatcher.json.JsonUtils;
 
-public class ScanParserItem implements IScanParser {
+public class ScanParserItemExtended implements IScanParser {
 
     protected IScanThing parseElement(String key, JsonElement e) {
         if (e.isJsonArray())
@@ -40,9 +42,9 @@ public class ScanParserItem implements IScanParser {
             JsonElement nbt = JsonUtils.tryGet("nbt", e.getAsJsonObject()).orNull();
             if (nbt != null && nbt.isJsonArray())
                 throw new JsonSchemaException(key + ": nbt must be object or string");
-            /*JsonElement caps = JsonUtils.tryGet("caps", e.getAsJsonObject()).orNull();
+            JsonElement caps = JsonUtils.tryGet("caps", e.getAsJsonObject()).orNull();
             if (caps != null && caps.isJsonArray())
-                throw new JsonSchemaException(key + ": caps must be object or string");*/
+                throw new JsonSchemaException(key + ": caps must be object or string");
             
             Item item = ForgeRegistries.ITEMS.getValue(loc);
             if (item == null)
@@ -58,7 +60,7 @@ public class ScanParserItem implements IScanParser {
                 }
             }
             
-            /*NBTTagCompound capNbt = null;
+            NBTTagCompound capNbt = null;
             if (caps != null) {
                 try {
                     capNbt = JsonToNBT.getTagFromJson(caps.isJsonObject() ?
@@ -67,7 +69,7 @@ public class ScanParserItem implements IScanParser {
                 catch (NBTException ex) {
                     throw new JsonSchemaException(key + ": Invalid caps nbt: " + ex);
                 }
-            }*/
+            }
             
             ItemStack stack = new ItemStack(item, 1, meta);
             if (nbt != null) {
@@ -80,13 +82,13 @@ public class ScanParserItem implements IScanParser {
                 }
             }
             
-            return new ScanItem(key, stack);
+            return new ScanItemExtended(key, stack, capNbt);
         }
     }
     
     @Override
     public boolean matches(ResourceLocation type) {
-        return type.getNamespace().equals("thaumcraft") && type.getPath().equals("item");
+        return type.getNamespace().equals("tcresearchpatcher") && type.getPath().equals("item_extended");
     }
     
     @Override

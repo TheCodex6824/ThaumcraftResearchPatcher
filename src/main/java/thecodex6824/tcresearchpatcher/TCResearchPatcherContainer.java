@@ -32,6 +32,7 @@ import thecodex6824.tcresearchpatcher.json.JsonUtils;
 import thecodex6824.tcresearchpatcher.parser.ScanParserBlock;
 import thecodex6824.tcresearchpatcher.parser.ScanParserEntity;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItem;
+import thecodex6824.tcresearchpatcher.parser.ScanParserItemExtended;
 
 @Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = ThaumcraftResearchPatcherApi.VERSION,
     certificateFingerprint = "@FINGERPRINT@", useMetadata = true)
@@ -46,6 +47,7 @@ public class TCResearchPatcherContainer {
     public void preInit(FMLPreInitializationEvent event) {
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserBlock(), 1000);
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserItem(), 1000);
+        ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserItemExtended(), 1000);
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserEntity(), 1000);
     }
     
