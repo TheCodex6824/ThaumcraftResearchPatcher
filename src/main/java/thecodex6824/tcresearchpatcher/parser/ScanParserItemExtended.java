@@ -40,6 +40,8 @@ public class ScanParserItemExtended implements IScanParser {
         else {
             ResourceLocation loc = new ResourceLocation(JsonUtils.getPrimitiveOrThrow("name", e.getAsJsonObject()).getAsString());
             JsonPrimitive damage = JsonUtils.tryGetPrimitive("meta", e.getAsJsonObject()).orNull();
+            JsonPrimitive strictVal = JsonUtils.tryGetPrimitive("strict", e.getAsJsonObject()).orNull();
+            boolean strict = strictVal != null ? strictVal.getAsBoolean() : false;
             JsonElement nbt = JsonUtils.tryGet("nbt", e.getAsJsonObject()).orNull();
             if (nbt != null && nbt.isJsonArray())
                 throw new JsonSchemaException(key + ": nbt must be object or string");
@@ -51,7 +53,7 @@ public class ScanParserItemExtended implements IScanParser {
             if (item == null)
                 throw new NullPointerException(key + ": Item " + loc + " does not exist");
             
-            int meta = OreDictionary.WILDCARD_VALUE;
+            int meta = strict ? 0 : OreDictionary.WILDCARD_VALUE;
             if (damage != null) {
                 try {
                     meta = damage.getAsInt();
@@ -83,7 +85,7 @@ public class ScanParserItemExtended implements IScanParser {
                 }
             }
             
-            return new ScanItemExtended(key, stack, capNbt);
+            return new ScanItemExtended(key, stack, capNbt, strict);
         }
     }
     

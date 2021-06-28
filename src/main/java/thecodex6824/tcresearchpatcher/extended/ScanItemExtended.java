@@ -5,43 +5,84 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
-import thaumcraft.api.ThaumcraftInvHelper;
+import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.api.research.IScanThing;
 
 public class ScanItemExtended implements IScanThing {
 
     protected String research;
     protected ItemStack ref;
+    protected boolean strict;
     
     @Nullable
     protected NBTTagCompound caps;
     
     public ScanItemExtended(String research, ItemStack stack) {
-        this(research, stack, null);
+        this(research, stack, null, false);
     }
     
-    public ScanItemExtended(String research, ItemStack stack, @Nullable NBTTagCompound capabilities) {
+    public ScanItemExtended(String research, ItemStack stack, @Nullable NBTTagCompound capabilities, boolean strictMatching) {
         this.research = research;
         ref = stack;
         caps = capabilities;
+        strict = strictMatching;
     }
     
-    @Override
-    public boolean checkThing(EntityPlayer player, Object thing) {
-        if (thing == null)
+    protected boolean tagsMatch(NBTBase tag1, NBTBase tag2) {
+        if (strict)
+            return tag1.equals(tag2);
+        
+        if (tag1.getId() == tag2.getId()) {
+            if (tag1 instanceof NBTTagCompound) {
+                NBTTagCompound compound1 = (NBTTagCompound) tag1;
+                NBTTagCompound compound2 = (NBTTagCompound) tag2;
+                for (String k : compound1.getKeySet()) {
+                    if (!compound2.hasKey(k, compound1.getTagId(k)) ||
+                            !tagsMatch(compound1.getTag(k), compound2.getTag(k))) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            else if (tag1 instanceof NBTTagList) {
+                NBTTagList list1 = (NBTTagList) tag1;
+                NBTTagList list2 = (NBTTagList) tag2;
+                for (NBTBase find1 : list1) {
+                    boolean found = false;
+                    for (NBTBase find2 : list2) {
+                        if (find1.equals(find2)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found)
+                        return false;
+                }
+                
+                return true;
+            }
+            else
+                return tag1.equals(tag2);
+        }
+        
+        return false;
+    }
+    
+    @SuppressWarnings("null")
+    protected boolean matches(ItemStack stack) {
+        if (!OreDictionary.itemMatches(ref, stack, strict))
             return false;
         
-        ItemStack stack = null;
-        if (thing instanceof EntityItem)
-            stack = ((EntityItem) thing).getItem();
-        else if (thing instanceof ItemStack)
-            stack = (ItemStack) thing;
-        
-        if (stack == null || stack.isEmpty() ||
-                !ThaumcraftInvHelper.areItemStacksEqualForCrafting(stack, ref))
-            return false;
+        if (ref.hasTagCompound()) {
+            if (!stack.hasTagCompound() || !tagsMatch(ref.getTagCompound(), stack.getTagCompound()))
+                return false;
+        }
         
         // can't use ItemStack#areCapsCompatible directly because we want to allow extra capabilities
         NBTTagCompound stackTag = stack.serializeNBT();
@@ -64,6 +105,23 @@ public class ScanItemExtended implements IScanThing {
         NBTTagCompound refTag = ref.serializeNBT();
         refTag.setTag("ForgeCaps", capsRef);
         return new ItemStack(stackTag).areCapsCompatible(new ItemStack(refTag));
+    }
+    
+    @Override
+    public boolean checkThing(EntityPlayer player, Object thing) {
+        if (thing == null)
+            return false;
+        
+        ItemStack stack = null;
+        if (thing instanceof EntityItem)
+            stack = ((EntityItem) thing).getItem();
+        else if (thing instanceof ItemStack)
+            stack = (ItemStack) thing;
+        
+        if (stack == null || stack.isEmpty())
+            return false;
+        
+        return matches(stack);
     }
     
     @Override
