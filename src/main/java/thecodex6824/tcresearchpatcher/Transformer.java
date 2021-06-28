@@ -22,12 +22,16 @@ package thecodex6824.tcresearchpatcher;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
@@ -43,23 +47,35 @@ public class Transformer implements IClassTransformer {
     }
     
     private void patchParse(MethodNode node) {
-        int i = 0;
-        while ((i = TransformUtil.findFirstInstanceOfMethodCall(node, i,
+        int i = TransformUtil.findFirstInstanceOfMethodCall(node, 0,
                 "parseResearchJson",
                 "(Lcom/google/gson/JsonObject;)Lthaumcraft/api/research/ResearchEntry;",
                 "thaumcraft/common/lib/research/ResearchManager"
-        )) != -1) {
+        );
+        if (i != -1) {
+            Label label = new Label();
             InsnList insns = new InsnList();
-            insns.add(new InsnNode(Opcodes.DUP));
             insns.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
                 TransformUtil.HOOKS,
                 "patchResearchJSON",
-                "(Lcom/google/gson/JsonObject;)V",
+                "(Lcom/google/gson/JsonObject;)Z",
                 false
             ));
+            insns.add(new JumpInsnNode(Opcodes.IFEQ, new LabelNode(label)));
+            insns.add(new IincInsnNode(8, 1));
+            insns.add(new VarInsnNode(Opcodes.ALOAD, 11));
             node.instructions.insert(node.instructions.get(i).getPrevious(), insns);
+            i += 5;
             
-            i += 3;
+            i = TransformUtil.findFirstInstanceOfMethodCall(node, i,
+                "addResearchToCategory",
+                "(Lthaumcraft/api/research/ResearchEntry;)V",
+                "thaumcraft/common/lib/research/ResearchManager"
+            );
+            insns = new InsnList();
+            insns.add(new LabelNode(label));
+            insns.add(new IincInsnNode(8, -1));
+            node.instructions.insert(node.instructions.get(i).getNext(), insns);
         }
     }
     
@@ -91,7 +107,12 @@ public class Transformer implements IClassTransformer {
             patchParse(parse);
             patchExit(parse);
             
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
+                @Override
+                protected String getCommonSuperClass(String type1, String type2) {
+                    return "java/lang/Object";
+                }
+            };
             node.accept(writer);
             return writer.toByteArray();
         }

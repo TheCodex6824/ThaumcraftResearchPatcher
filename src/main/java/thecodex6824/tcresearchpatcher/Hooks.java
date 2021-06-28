@@ -40,18 +40,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.common.lib.research.ResearchManager;
+import thecodex6824.tcresearchpatcher.api.event.ResearchPatchEvent;
 import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
 import thecodex6824.tcresearchpatcher.json.JsonUtils;
-import thecodex6824.tcresearchpatcher.patch.JSONPatch;
+import thecodex6824.tcresearchpatcher.patch.JsonPatch;
 import thecodex6824.tcresearchpatcher.patch.PatchHelper;
 
 public final class Hooks {
 
     private Hooks() {}
     
-    private static final HashMap<String, ArrayList<ArrayList<JSONPatch>>> PATCHES = new HashMap<>();
+    private static final HashMap<String, ArrayList<ArrayList<JsonPatch>>> PATCHES = new HashMap<>();
     
     // gson exposes deep copy in a later version than forge ships in 1.12
     private static final Method JSON_DEEP_COPY;
@@ -127,7 +130,7 @@ public final class Hooks {
                     for (JsonObject o : objects) {
                         JsonPrimitive key = JsonUtils.getPrimitiveOrThrow("key", o);
                         JsonArray ops = JsonUtils.getArrayOrThrow("ops", o);
-                        ArrayList<JSONPatch> insertTo = new ArrayList<>();
+                        ArrayList<JsonPatch> insertTo = new ArrayList<>();
                         for (JsonElement e : ops.getAsJsonArray()) {
                             if (!e.isJsonObject())
                                 throw new JsonSchemaException(e + ": Patch entry not an object");
@@ -135,7 +138,7 @@ public final class Hooks {
                             insertTo.add(PatchHelper.parsePatch(e.getAsJsonObject()));
                         }
                         
-                        ArrayList<ArrayList<JSONPatch>> list = PATCHES.get(key.getAsString());
+                        ArrayList<ArrayList<JsonPatch>> list = PATCHES.get(key.getAsString());
                         if (list == null) {
                             list = new ArrayList<>();
                             PATCHES.put(key.getAsString(), list);
@@ -172,9 +175,11 @@ public final class Hooks {
                             throw new JsonSchemaException(e + ": not an object");
                         
                         JsonObject entry = e.getAsJsonObject();
-                        ResearchEntry researchEntry = parseResearchJson(entry);
-                        addResearchToCategory(researchEntry);
-                        ++i;
+                        if (patchResearchJSON(entry)) {
+                            ResearchEntry researchEntry = parseResearchJson(entry);
+                            addResearchToCategory(researchEntry);
+                            ++i;
+                        }
                     }
                     
                     log.info("entries/" + f.getName() + ": loaded " + i + " entries");
@@ -196,46 +201,65 @@ public final class Hooks {
         }
     }
     
-    public static void patchResearchJSON(JsonObject json) {
+    public static boolean patchResearchJSON(JsonObject json) {
+        boolean allowLoading = true;
         Logger log = TCResearchPatcher.getLogger();
         JsonElement key = json.get("key");
-        if (key == null || !key.isJsonPrimitive())
-            log.error("Research entry key is missing, this should never happen!");
-        else {
-            ArrayList<ArrayList<JSONPatch>> apply = PATCHES.get(key.getAsString());
-            if (apply != null) {
-                for (ArrayList<JSONPatch> patchList : apply) {
-                    if (!patchList.isEmpty()) {
-                        boolean applyChanges = true;
-                        JsonObject working = deepCopy(json);
-                        for (JSONPatch p : patchList) {
-                            try {
-                                applyChanges &= PatchHelper.applyPatch(working, p);
+        if (key != null && key.isJsonPrimitive()) {
+            ResearchPatchEvent.Pre preEvent = new ResearchPatchEvent.Pre(json);
+            MinecraftForge.EVENT_BUS.post(preEvent);
+            if (preEvent.isCanceled() || preEvent.getResult() == Result.DENY)
+                return false;
+            else if (preEvent.getResult() == Result.ALLOW)
+                return true;
+            else {
+                ArrayList<ArrayList<JsonPatch>> apply = PATCHES.get(key.getAsString());
+                if (apply != null) {
+                    for (ArrayList<JsonPatch> patchList : apply) {
+                        if (!patchList.isEmpty()) {
+                            boolean applyChanges = true;
+                            JsonObject working = deepCopy(json);
+                            for (JsonPatch p : patchList) {
+                                try {
+                                    applyChanges &= PatchHelper.applyPatch(working, p);
+                                }
+                                catch (JsonSchemaException ex) {
+                                    log.warn(ex.getMessage());
+                                    applyChanges = false;
+                                }
+                                
+                                if (!applyChanges)
+                                    break;
                             }
-                            catch (JsonSchemaException ex) {
-                                log.warn(ex.getMessage());
-                                applyChanges = false;
+                            
+                            if (applyChanges) {
+                                // removing directly results in CME
+                                HashSet<String> toRemove = new HashSet<>();
+                                for (Map.Entry<String, JsonElement> entry : json.entrySet())
+                                    toRemove.add(entry.getKey());
+                                
+                                for (String s : toRemove)
+                                    json.remove(s);
+                                
+                                for (Map.Entry<String, JsonElement> entry : working.entrySet())
+                                    json.add(entry.getKey(), deepCopy(entry.getValue()));
                             }
-                            
-                            if (!applyChanges)
-                                break;
-                        }
-                        
-                        if (applyChanges) {
-                            // removing directly results in CME
-                            HashSet<String> toRemove = new HashSet<>();
-                            for (Map.Entry<String, JsonElement> entry : json.entrySet())
-                                toRemove.add(entry.getKey());
-                            
-                            for (String s : toRemove)
-                                json.remove(s);
-                            
-                            for (Map.Entry<String, JsonElement> entry : working.entrySet())
-                                json.add(entry.getKey(), deepCopy(entry.getValue()));
                         }
                     }
+                    
+                    allowLoading = JsonUtils.tryGetPrimitive("key", json).isPresent();
                 }
             }
+        }
+        else
+            allowLoading = false;
+        
+        if (!allowLoading)
+            return false;
+        else {
+            ResearchPatchEvent.Post postEvent = new ResearchPatchEvent.Post(json);
+            MinecraftForge.EVENT_BUS.post(postEvent);
+            return !postEvent.isCanceled();
         }
     }
     

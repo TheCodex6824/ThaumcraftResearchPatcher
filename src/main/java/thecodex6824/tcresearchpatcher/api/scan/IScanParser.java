@@ -1,4 +1,4 @@
-package thecodex6824.tcresearchpatcher.api;
+package thecodex6824.tcresearchpatcher.api.scan;
 
 import java.util.Collection;
 

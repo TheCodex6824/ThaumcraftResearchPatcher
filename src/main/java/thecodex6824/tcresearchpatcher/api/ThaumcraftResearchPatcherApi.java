@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 
 import net.minecraft.util.ResourceLocation;
 import thaumcraft.api.research.IScanThing;
+import thecodex6824.tcresearchpatcher.api.scan.IScanParser;
 
 public final class ThaumcraftResearchPatcherApi {
 

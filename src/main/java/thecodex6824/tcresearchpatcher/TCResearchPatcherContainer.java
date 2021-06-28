@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -20,11 +23,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ResearchCategories;
+import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ScanningManager;
 import thecodex6824.tcresearchpatcher.api.ThaumcraftResearchPatcherApi;
 import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
@@ -134,6 +139,21 @@ public class TCResearchPatcherContainer {
                         log.error(t.getMessage());
                 }
             }
+        }
+    }
+    
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        Set<String> toRemove = new HashSet<>();
+        for (Entry<String, ResearchCategory> entry : ResearchCategories.researchCategories.entrySet()) {
+            if (entry.getValue().research.isEmpty())
+                toRemove.add(entry.getKey());
+        }
+        
+        Logger log = TCResearchPatcher.getLogger();
+        for (String s : toRemove) {
+            log.info("Removing research category " + s + " due to it having no entries");
+            ResearchCategories.researchCategories.remove(s);
         }
     }
     

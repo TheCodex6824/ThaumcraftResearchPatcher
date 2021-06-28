@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 import com.google.gson.JsonElement;
 
-public class JSONPatch {
+public class JsonPatch {
 
     public static enum PatchOp {
         
@@ -37,7 +37,7 @@ public class JSONPatch {
     public final String path;
     public final JsonElement meta;
     
-    public JSONPatch(PatchOp o, String p, JsonElement m) {
+    public JsonPatch(PatchOp o, String p, JsonElement m) {
         op = o;
         path = p;
         meta = m;

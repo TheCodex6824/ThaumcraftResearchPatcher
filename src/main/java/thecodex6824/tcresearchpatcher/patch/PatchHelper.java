@@ -168,7 +168,7 @@ public final class PatchHelper {
         return Pair.of(parent, path[path.length - 1]);
     }
     
-    public static JSONPatch parsePatch(JsonObject patch) throws JsonSchemaException {
+    public static JsonPatch parsePatch(JsonObject patch) throws JsonSchemaException {
         JsonPrimitive path = JsonUtils.getPrimitiveOrThrow("path", patch);
         JsonPrimitive op = JsonUtils.getPrimitiveOrThrow("op", patch);
         JsonElement meta = null;
@@ -186,11 +186,11 @@ public final class PatchHelper {
             default: throw new JsonSchemaException("invalid op");
         }
         
-        return new JSONPatch(JSONPatch.PatchOp.fromString(op.getAsString()), path.getAsString(),
+        return new JsonPatch(JsonPatch.PatchOp.fromString(op.getAsString()), path.getAsString(),
                 meta != null ? meta : JsonNull.INSTANCE);
     }
     
-    public static boolean applyPatch(JsonObject working, JSONPatch p) {
+    public static boolean applyPatch(JsonObject working, JsonPatch p) {
         Pair<JsonElement, String> path = parsePath(working, p.path);
         if (path == null)
             return false;

@@ -18,7 +18,7 @@ import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ScanEntity;
-import thecodex6824.tcresearchpatcher.api.IScanParser;
+import thecodex6824.tcresearchpatcher.api.scan.IScanParser;
 import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
 import thecodex6824.tcresearchpatcher.json.JsonUtils;
 
