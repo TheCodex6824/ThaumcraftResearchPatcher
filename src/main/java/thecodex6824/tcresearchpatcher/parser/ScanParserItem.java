@@ -14,6 +14,7 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ScanItem;
 import thecodex6824.tcresearchpatcher.api.scan.IScanParser;
@@ -48,7 +49,7 @@ public class ScanParserItem implements IScanParser {
             if (item == null)
                 throw new NullPointerException(key + ": Item " + loc + " does not exist");
             
-            int meta = 0;
+            int meta = OreDictionary.WILDCARD_VALUE;
             if (damage != null) {
                 try {
                     meta = damage.getAsInt();
