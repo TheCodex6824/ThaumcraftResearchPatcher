@@ -251,8 +251,12 @@ public final class Hooks {
                 }
             }
         }
-        else
+        else {
+            // we don't have file info so dump json to debug log
+            log.error("An entry is missing a key (before patching), it will not be loaded. See debug log for json dump");
+            log.debug(json.toString());
             allowLoading = false;
+        }
         
         if (!allowLoading)
             return false;
