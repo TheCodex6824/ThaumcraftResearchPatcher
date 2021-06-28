@@ -25,7 +25,7 @@ public class ResearchPatchEvent extends Event {
     
     /**
      * Event that fires before any patches are applied to this research (if any).
-     * <p><ul>
+     * <ul>
      * <li>A result of DENY will stop this research from being loaded.
      * <li>A result of ALLOW will not apply patches, but allow the research to be loaded.
      * <li>A result of DEFAULT will apply patches as normal.
@@ -47,7 +47,7 @@ public class ResearchPatchEvent extends Event {
      * Event that fires after any patches are applied to this research (if any).
      * Canceling this event will stop this research from being loaded.
      * <p>
-     * This event will not fire if {@link ResearchPatchEvent#Pre} stopped this research from loading,
+     * This event will not fire if {@link ResearchPatchEvent.Pre} stopped this research from loading,
      * or the research is otherwise unable to be loaded (i.e. missing a key).
      * @author TheCodex6824
      */

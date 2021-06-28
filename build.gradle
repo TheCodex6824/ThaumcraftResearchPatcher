@@ -39,6 +39,9 @@ minecraft {
     mappings = 'stable_39'
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
+    replace '@APIVERSION@', project.apiversion
+    replaceIn 'ThaumcraftResearchPatcherApi.java'
+    
     replace '@VERSION@', project.version
     replaceIn 'TCResearchPatcherContainer.java'
     
@@ -90,6 +93,7 @@ jar {
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property 'version', project.version
+    inputs.property 'apiversion', project.apiversion
     inputs.property 'mcversion', project.minecraft.version
     inputs.property 'forgeversion', project.forgeversion
     
@@ -107,11 +111,29 @@ processResources {
     }
 }
 
+javadoc {
+    include 'thecodex6824/tcresearchpatcher/api/**'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from 'build/docs/javadoc'
+    classifier = 'javadoc'
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.main.output
+    from sourceSets.main.java
+    classifier = 'api'
+    include 'thecodex6824/tcresearchpatcher/api/**'
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.java
     classifier = 'sources'
 }
 
 artifacts {
+    archives apiJar
+    archives javadocJar
     archives sourcesJar
 }

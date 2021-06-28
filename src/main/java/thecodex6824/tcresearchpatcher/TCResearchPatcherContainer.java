@@ -39,7 +39,7 @@ import thecodex6824.tcresearchpatcher.parser.ScanParserEntity;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItem;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItemExtended;
 
-@Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = ThaumcraftResearchPatcherApi.VERSION,
+@Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = "@VERSION@",
     certificateFingerprint = "@FINGERPRINT@", useMetadata = true)
 public class TCResearchPatcherContainer {
     

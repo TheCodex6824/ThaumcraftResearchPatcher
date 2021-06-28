@@ -15,7 +15,6 @@ public final class ThaumcraftResearchPatcherApi {
     
     public static final String MODID = "tcresearchpatcher";
     public static final String NAME = "Thaumcraft Research Patcher";
-    public static final String VERSION = "@VERSION@";
     public static final String PROVIDES = MODID + "api";
     public static final String API_VERSION = "@APIVERSION@";
     
