@@ -50,6 +50,7 @@ public class TCResearchPatcherContainer {
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        ThaumcraftResearchPatcherApi.setInternalMethodHandler(new InternalMethodHandler());
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserBlock(), 1000);
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserItem(), 1000);
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserItemExtended(), 1000);
