@@ -46,6 +46,14 @@ public class JsonUtils {
         return e.getAsJsonPrimitive();
     }
     
+    public static Optional<JsonArray> tryGetArray(String key, JsonObject obj) {
+        JsonElement e = obj.get(key);
+        if (e == null || !e.isJsonArray())
+            return Optional.absent();
+        
+        return Optional.of(e.getAsJsonArray());
+    }
+    
     public static JsonArray getArrayOrThrow(String key, JsonObject obj) throws JsonSchemaException {
         JsonElement e = obj.get(key);
         if (e == null)

@@ -165,16 +165,12 @@ public final class Hooks {
                 try (FileInputStream s = new FileInputStream(f)) {
                     String content = IOUtils.toString(s, StandardCharsets.UTF_8);
                     JsonElement element = parser.parse(content);
-                    if (!element.isJsonObject())
-                        throw new JsonSchemaException("top level not an object");
+                    List<JsonObject> objects = JsonUtils.getObjectOrArrayContainedObjects(element);
+                    if (objects.size() == 1 && JsonUtils.tryGetArray("entries", objects.get(0)).isPresent())
+                        objects = JsonUtils.getObjectOrArrayContainedObjects(objects.get(0).get("entries"));
                     
-                    JsonArray entries = JsonUtils.getArrayOrThrow("entries", element.getAsJsonObject());
                     int i = 0;
-                    for (JsonElement e : entries.getAsJsonArray()) {
-                        if (!e.isJsonObject())
-                            throw new JsonSchemaException(e + ": not an object");
-                        
-                        JsonObject entry = e.getAsJsonObject();
+                    for (JsonObject entry : objects) {
                         if (patchResearchJSON(entry)) {
                             ResearchEntry researchEntry = parseResearchJson(entry);
                             addResearchToCategory(researchEntry);
