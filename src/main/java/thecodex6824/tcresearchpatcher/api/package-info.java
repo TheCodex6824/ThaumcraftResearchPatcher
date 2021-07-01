@@ -18,6 +18,11 @@
  *  along with Thaumcraft Research Patcher.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ *  API providing events and helpers for Thaumcraft Research Patcher.
+ *  
+ *  @author TheCodex6824
+ */
 @net.minecraftforge.fml.common.API(owner = ThaumcraftResearchPatcherApi.MODID, provides = ThaumcraftResearchPatcherApi.PROVIDES, 
     apiVersion = ThaumcraftResearchPatcherApi.API_VERSION)
 @javax.annotation.ParametersAreNonnullByDefault
