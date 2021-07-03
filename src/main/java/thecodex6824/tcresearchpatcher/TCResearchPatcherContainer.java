@@ -87,7 +87,7 @@ public class TCResearchPatcherContainer {
                     JsonPrimitive key = JsonUtils.getPrimitiveOrThrow("key", o);
                     JsonPrimitive requirement = JsonUtils.getPrimitiveOrThrow("requirement", o);
                     AspectList list = new AspectList();
-                    JsonObject aspects = JsonUtils.getObjectOrThrow("aspects", o);
+                    JsonObject aspects = JsonUtils.tryGetObject("aspects", o).or(new JsonObject());
                     for (Map.Entry<String, JsonElement> pair : aspects.entrySet()) {
                         if (pair.getValue().isJsonPrimitive()) {
                             Aspect aspect = Aspect.getAspect(pair.getKey());
