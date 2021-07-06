@@ -149,6 +149,7 @@ public final class Hooks {
                 }
                 catch (Exception ex) {
                     log.error("patches/" + f.getName() + ": Error reading file: " + ex.getMessage());
+                    TCResearchPatcherContainer.instance.setErrorsDetected();
                 }
             }
         }
@@ -182,6 +183,7 @@ public final class Hooks {
                 }
                 catch (Exception ex) {
                     log.error("entries/" + f.getName() + ": Error reading file: " + ex.getMessage());
+                    TCResearchPatcherContainer.instance.setErrorsDetected();
                 }
             }
         }
@@ -252,6 +254,7 @@ public final class Hooks {
             log.error("An entry is missing a key (before patching), it will not be loaded. See debug log for json dump");
             log.debug(json.toString());
             allowLoading = false;
+            TCResearchPatcherContainer.instance.setErrorsDetected();
         }
         
         if (!allowLoading)

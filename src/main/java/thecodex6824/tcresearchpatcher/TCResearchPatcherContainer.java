@@ -38,6 +38,7 @@ import com.google.gson.JsonPrimitive;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -58,6 +59,11 @@ import thecodex6824.tcresearchpatcher.parser.ScanParserItemExtended;
 @Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = "@VERSION@",
     certificateFingerprint = "@FINGERPRINT@", useMetadata = true)
 public class TCResearchPatcherContainer {
+    
+    @Instance(ThaumcraftResearchPatcherApi.MODID)
+    public static TCResearchPatcherContainer instance;
+    
+    protected boolean researchErrors;
     
     @EventHandler
     public void onFingerPrintViolation(FMLFingerprintViolationEvent event) {
@@ -118,6 +124,7 @@ public class TCResearchPatcherContainer {
             }
             catch (Exception ex) {
                 log.error("categories.json: Error reading file: " + ex.getMessage());
+                researchErrors = true;
             }
         }
         
@@ -154,6 +161,8 @@ public class TCResearchPatcherContainer {
                     log.error("scans/" + f.getName() + ": Error reading file: " + ex.getMessage());
                     for (Throwable t : ex.getSuppressed())
                         log.error(t.getMessage());
+                    
+                    researchErrors = true;
                 }
             }
         }
@@ -168,6 +177,14 @@ public class TCResearchPatcherContainer {
             else
                 log.warn("Research category " + s + " was supposed to be removed, but did not exist");
         }
+        
+        // "reminder" because init / model loading often causes log spam
+        if (researchErrors)
+            log.error("One or more research errors have occurred. Please check the log file for more information.");
+    }
+    
+    public void setErrorsDetected() {
+        researchErrors = true;
     }
     
 }
