@@ -167,7 +167,7 @@ public final class Hooks {
                     String content = IOUtils.toString(s, StandardCharsets.UTF_8);
                     JsonElement element = parser.parse(content);
                     List<JsonObject> objects = JsonUtils.getObjectOrArrayContainedObjects(element);
-                    if (objects.size() == 1 && JsonUtils.tryGetArray("entries", objects.get(0)).isPresent())
+                    if (objects.size() >= 1 && JsonUtils.tryGetArray("entries", objects.get(0)).isPresent())
                         objects = JsonUtils.getObjectOrArrayContainedObjects(objects.get(0).get("entries"));
                     
                     int i = 0;
