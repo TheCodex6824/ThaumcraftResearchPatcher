@@ -11,7 +11,7 @@
   "logoFile": "assets/tcresearchpatcher/logo.png",
   "screenshots": [],
   "useDependencyInformation": true,
-  "requiredMods": ["forge@[${forgeversion},)", "thaumcraft@[6.1.BETA26,)"],
+  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[6.1.BETA26,)"],
   "dependencies": ["thaumcraft"]
 }
 ]
