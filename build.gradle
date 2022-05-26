@@ -16,6 +16,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'wtf.gofancy.fancygradle'
 
 fancyGradle {
@@ -23,6 +24,7 @@ fancyGradle {
         resources
         coremods
         asm
+        codeChickenLib
     }
 }
 
@@ -111,21 +113,24 @@ dependencies {
     runtimeOnly 'curse.maven:thaumic-augmentation-319441:3339179'
 }
 
-// https://stackoverflow.com/questions/30038540/replace-token-in-file-before-building-but-keep-token-in-sources/54094378#54094378
-task filterTokens(type: Sync) {
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
+task filterTokens(type: Copy) {
     // this will ensure that this task is redone when the versions change.
     inputs.property 'version', version
     inputs.property 'apiversion', apiversion
     inputs.property 'certFingerprint', certFingerprint
-    
+
     from sourceSets.main.java
     filter(ReplaceTokens, tokens: [APIVERSION: apiversion.toString(), VERSION: version.toString(), FINGERPRINT: certFingerprint.toString()])
-    into "$buildDir/filteredSrc"
+    into "$buildDir/sources/java"
 }
 
-compileJava {
-    source = filterTokens.outputs   
-}
+compileJava.dependsOn filterTokens
 
 processResources {
     // required to allow file expansion later
