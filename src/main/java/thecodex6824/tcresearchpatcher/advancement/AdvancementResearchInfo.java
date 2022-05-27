@@ -34,6 +34,7 @@ import java.util.Optional;
 
 public class AdvancementResearchInfo {
 
+    protected ResourceLocation advancementKey;
     protected List<String> researchKeys;
     protected Optional<String> researchMessage;
 
@@ -41,12 +42,9 @@ public class AdvancementResearchInfo {
     // (if you do use this, let me know so I can promote it to the API)
     protected AdvancementResearchInfo() {}
 
-    public AdvancementResearchInfo(JsonElement input) throws JsonSchemaException {
-        if (!input.isJsonObject())
-            throw new JsonSchemaException("Input must be JSON object");
-
-        JsonObject topLevel = input.getAsJsonObject();
-        JsonElement research = JsonUtils.getOrThrow("research", topLevel);
+    public AdvancementResearchInfo(JsonObject input) throws JsonSchemaException {
+        advancementKey = new ResourceLocation(JsonUtils.getOrThrow("key", input).getAsString());
+        JsonElement research = JsonUtils.getOrThrow("research", input, advancementKey.toString());
         ImmutableList.Builder<String> builder = ImmutableList.builder();
         if (research.isJsonObject())
             throw new JsonSchemaException("Research must be an array or single entry");
@@ -62,13 +60,17 @@ public class AdvancementResearchInfo {
             builder.add(research.getAsString());
 
         researchKeys = builder.build();
-        JsonElement message = JsonUtils.tryGet("message", topLevel).orNull();
+        JsonElement message = JsonUtils.tryGet("message", input).orNull();
         if (message != null) {
             if (!message.isJsonPrimitive())
                 throw new JsonSchemaException("Research message must be a string");
 
             researchMessage = Optional.of(message.getAsString());
         }
+    }
+
+    public ResourceLocation getAdvancementKey() {
+        return advancementKey;
     }
 
     public Collection<String> getResearchKeys() {

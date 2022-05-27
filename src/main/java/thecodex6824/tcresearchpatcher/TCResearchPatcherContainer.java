@@ -194,12 +194,14 @@ public class TCResearchPatcherContainer {
                 try (FileInputStream s = new FileInputStream(f)) {
                     String content = IOUtils.toString(s, StandardCharsets.UTF_8);
                     JsonElement element = parser.parse(content);
-                    List<JsonObject> objects = JsonUtils.getObjectOrArrayContainedObjects(element);
-                    for (JsonObject o : objects) {
-                        JsonPrimitive key = JsonUtils.getPrimitiveOrThrow("key", o);
-                        JsonObject data = JsonUtils.getObjectOrThrow("data", o, key.getAsString());
-                        AdvancementListener.addAdvancementInfo(new ResourceLocation(key.getAsString()), new AdvancementResearchInfo(data));
+                    int total = 0;
+                    for (JsonObject o : JsonUtils.getObjectOrArrayContainedObjects(element)) {
+                        AdvancementResearchInfo info = new AdvancementResearchInfo(o);
+                        AdvancementListener.addAdvancementInfo(info.getAdvancementKey(), info);
+                        ++total;
                     }
+
+                    log.info("advancements/" + f.getName() + ": loaded " + total + " advancement keys");
                 } catch (Exception ex) {
                     log.error("advancements/" + f.getName() + ": Error reading file: " + ex.getMessage());
                     for (Throwable t : ex.getSuppressed())
