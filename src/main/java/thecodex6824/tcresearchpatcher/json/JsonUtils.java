@@ -30,6 +30,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import javax.annotation.Nullable;
+
 public class JsonUtils {
 
     public static Optional<JsonElement> tryGet(String key, JsonObject obj) {
@@ -39,11 +41,15 @@ public class JsonUtils {
         
         return Optional.of(e);
     }
-    
+
     public static JsonElement getOrThrow(String key, JsonObject obj) throws JsonSchemaException {
+        return getOrThrow(key, obj, null);
+    }
+
+    public static JsonElement getOrThrow(String key, JsonObject obj, @Nullable String parentKey) throws JsonSchemaException {
         JsonElement e = obj.get(key);
         if (e == null)
-            throw new JsonSchemaException("Key " + key + " is missing");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " is missing");
         
         return e;
     }
@@ -55,13 +61,17 @@ public class JsonUtils {
         
         return Optional.of(e.getAsJsonPrimitive());
     }
-    
+
     public static JsonPrimitive getPrimitiveOrThrow(String key, JsonObject obj) throws JsonSchemaException {
+        return getPrimitiveOrThrow(key, obj, null);
+    }
+
+    public static JsonPrimitive getPrimitiveOrThrow(String key, JsonObject obj, @Nullable String parentKey) throws JsonSchemaException {
         JsonElement e = obj.get(key);
         if (e == null)
-            throw new JsonSchemaException("Key " + key + " is missing");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " is missing");
         else if (!e.isJsonPrimitive())
-            throw new JsonSchemaException("Key " + key + " does not have a primitive value");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " does not have a primitive value");
         
         return e.getAsJsonPrimitive();
     }
@@ -73,13 +83,17 @@ public class JsonUtils {
         
         return Optional.of(e.getAsJsonArray());
     }
-    
+
     public static JsonArray getArrayOrThrow(String key, JsonObject obj) throws JsonSchemaException {
+        return getArrayOrThrow(key, obj, null);
+    }
+
+    public static JsonArray getArrayOrThrow(String key, JsonObject obj, @Nullable String parentKey) throws JsonSchemaException {
         JsonElement e = obj.get(key);
         if (e == null)
-            throw new JsonSchemaException("Key " + key + " is missing");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " is missing");
         else if (!e.isJsonArray())
-            throw new JsonSchemaException("Key " + key + " does not have an array value");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " does not have an array value");
         
         return e.getAsJsonArray();
     }
@@ -91,13 +105,17 @@ public class JsonUtils {
         
         return Optional.of(e.getAsJsonObject());
     }
-    
+
     public static JsonObject getObjectOrThrow(String key, JsonObject obj) throws JsonSchemaException {
+        return getObjectOrThrow(key, obj, null);
+    }
+
+    public static JsonObject getObjectOrThrow(String key, JsonObject obj, @Nullable String parentKey) throws JsonSchemaException {
         JsonElement e = obj.get(key);
         if (e == null)
-            throw new JsonSchemaException("Key " + key + " is missing");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " is missing");
         else if (!e.isJsonObject())
-            throw new JsonSchemaException("Key " + key + " does not have an object value");
+            throw new JsonSchemaException("Key " + key + (parentKey != null ? " on object " + parentKey : "") + " does not have an object value");
         
         return e.getAsJsonObject();
     }

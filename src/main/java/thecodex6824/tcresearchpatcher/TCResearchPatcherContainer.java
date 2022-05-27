@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -48,6 +49,8 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ScanningManager;
+import thecodex6824.tcresearchpatcher.advancement.AdvancementListener;
+import thecodex6824.tcresearchpatcher.advancement.AdvancementResearchInfo;
 import thecodex6824.tcresearchpatcher.api.ThaumcraftResearchPatcherApi;
 import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
 import thecodex6824.tcresearchpatcher.json.JsonUtils;
@@ -55,6 +58,8 @@ import thecodex6824.tcresearchpatcher.parser.ScanParserBlock;
 import thecodex6824.tcresearchpatcher.parser.ScanParserEntity;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItem;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItemExtended;
+
+import javax.annotation.Resource;
 
 @Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = "@VERSION@",
     certificateFingerprint = "@FINGERPRINT@", useMetadata = true)
@@ -78,9 +83,8 @@ public class TCResearchPatcherContainer {
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserItemExtended(), 1000);
         ThaumcraftResearchPatcherApi.registerScanParser(new ScanParserEntity(), 1000);
     }
-    
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
+
+    protected void loadCategories() {
         Logger log = TCResearchPatcher.getLogger();
         JsonParser parser = new JsonParser();
         File cats = new File("config/tcresearchpatcher", "categories.json");
@@ -99,7 +103,7 @@ public class TCResearchPatcherContainer {
                             Aspect aspect = Aspect.getAspect(pair.getKey());
                             if (aspect == null)
                                 throw new JsonSchemaException(aspects + ": Invalid aspect entry: invalid aspect tag");
-                            
+
                             int amount = -1;
                             try {
                                 amount = pair.getValue().getAsInt();
@@ -107,12 +111,12 @@ public class TCResearchPatcherContainer {
                             catch (ClassCastException ex) {
                                 throw new JsonSchemaException(aspects + ": Invalid aspect entry: invalid amount");
                             }
-                            
+
                             if (amount > 0)
                                 list.add(aspect, amount);
                         }
                     }
-                    
+
                     JsonPrimitive icon = JsonUtils.getPrimitiveOrThrow("icon", o);
                     JsonPrimitive background = JsonUtils.getPrimitiveOrThrow("background", o);
                     JsonPrimitive backgroundOverlay = JsonUtils.getPrimitiveOrThrow("backgroundOverlay", o);
@@ -124,10 +128,17 @@ public class TCResearchPatcherContainer {
             }
             catch (Exception ex) {
                 log.error("categories.json: Error reading file: " + ex.getMessage());
+                for (Throwable t : ex.getSuppressed())
+                    log.error("Suppressed error: " + t.getMessage());
+
                 researchErrors = true;
             }
         }
-        
+    }
+
+    protected void loadScans() {
+        Logger log = TCResearchPatcher.getLogger();
+        JsonParser parser = new JsonParser();
         File scans = new File("config/tcresearchpatcher", "scans");
         if (scans.isDirectory()) {
             File[] files = scans.listFiles(new FileFilter() {
@@ -151,21 +162,60 @@ public class TCResearchPatcherContainer {
                             ScanningManager.addScannableThing(thing);
                             ++totalScans;
                         }
-                        
+
                         ++scanKeys;
                     }
-                    
+
                     log.info("scans/" + f.getName() + ": loaded " + scanKeys + " scan keys with " + totalScans + " scan entries");
                 }
                 catch (Exception ex) {
                     log.error("scans/" + f.getName() + ": Error reading file: " + ex.getMessage());
                     for (Throwable t : ex.getSuppressed())
-                        log.error(t.getMessage());
-                    
+                        log.error("Suppressed error: " + t.getMessage());
+
                     researchErrors = true;
                 }
             }
         }
+    }
+
+    protected void loadAdvancements() {
+        Logger log = TCResearchPatcher.getLogger();
+        JsonParser parser = new JsonParser();
+        File advancements = new File("config/tcresearchpatcher", "advancements");
+        if (advancements.isDirectory()) {
+            File[] files = advancements.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isFile() && f.getName().endsWith(".json");
+                }
+            });
+            for (File f : files) {
+                try (FileInputStream s = new FileInputStream(f)) {
+                    String content = IOUtils.toString(s, StandardCharsets.UTF_8);
+                    JsonElement element = parser.parse(content);
+                    List<JsonObject> objects = JsonUtils.getObjectOrArrayContainedObjects(element);
+                    for (JsonObject o : objects) {
+                        JsonPrimitive key = JsonUtils.getPrimitiveOrThrow("key", o);
+                        JsonObject data = JsonUtils.getObjectOrThrow("data", o, key.getAsString());
+                        AdvancementListener.addAdvancementInfo(new ResourceLocation(key.getAsString()), new AdvancementResearchInfo(data));
+                    }
+                } catch (Exception ex) {
+                    log.error("advancements/" + f.getName() + ": Error reading file: " + ex.getMessage());
+                    for (Throwable t : ex.getSuppressed())
+                        log.error("Suppressed error: " + t.getMessage());
+
+                    researchErrors = true;
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+        loadCategories();
+        loadScans();
+        loadAdvancements();
     }
     
     @EventHandler
