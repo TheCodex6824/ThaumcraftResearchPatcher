@@ -55,7 +55,7 @@ public class ScanParserItemExtended implements IScanParser {
             if (item == null)
                 throw new NullPointerException(key + ": Item " + loc + " does not exist");
             
-            return new ScanItem(key, new ItemStack(item));
+            return new ScanItem(key, new ItemStack(item, 1, OreDictionary.WILDCARD_VALUE));
         }
         else {
             ResourceLocation loc = new ResourceLocation(JsonUtils.getPrimitiveOrThrow("name", e.getAsJsonObject()).getAsString());
