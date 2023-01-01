@@ -1,22 +1,10 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        mavenCentral()
-        maven {
-            name 'FancyGradle'
-            url 'https://gitlab.com/api/v4/projects/26758973/packages/maven'
-        }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath group: 'wtf.gofancy.fancygradle', name: 'wtf.gofancy.fancygradle.gradle.plugin', version: '1.1.+'
-    }
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'wtf.gofancy.fancygradle' version '1.1.+'
 }
-
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'wtf.gofancy.fancygradle'
 
 fancyGradle {
     patches {
@@ -24,6 +12,7 @@ fancyGradle {
         coremods
         asm
         codeChickenLib
+        mergetool
     }
 }
 
@@ -110,6 +99,11 @@ dependencies {
     runtimeOnly 'curse.maven:jei-238222:2995897'
     runtimeOnly 'curse.maven:thaumic-jei-285492:2705304'
     runtimeOnly 'curse.maven:thaumic-augmentation-319441:3339179'
+    
+    configurations.forEach {
+    	it.exclude(group: 'net.minecraftforge', module: 'mergetool')
+    	it.resolutionStrategy.force 'net.minecraftforge:legacydev:0.2.4.0'
+    }
 }
 
 idea {
@@ -180,8 +174,6 @@ jar {
     
     afterEvaluate { project.getTasks().getByName('reobfJar').finalizedBy(signJar) }
 }
-
-jar.finalizedBy('reobfJar')
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from 'build/docs/javadoc'
