@@ -1,6 +1,6 @@
-/**
+/*
  *  Thaumcraft Research Patcher
- *  Copyright (c) 2021 TheCodex6824.
+ *  Copyright (c) 2023 TheCodex6824.
  *
  *  This file is part of Thaumcraft Research Patcher.
  *

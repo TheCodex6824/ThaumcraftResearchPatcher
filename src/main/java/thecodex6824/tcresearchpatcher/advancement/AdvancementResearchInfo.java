@@ -1,6 +1,6 @@
-/**
+/*
  *  Thaumcraft Research Patcher
- *  Copyright (c) 2022 TheCodex6824.
+ *  Copyright (c) 2023 TheCodex6824.
  *
  *  This file is part of Thaumcraft Research Patcher.
  *
@@ -20,17 +20,17 @@
 
 package thecodex6824.tcresearchpatcher.advancement;
 
-import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import net.minecraft.util.ResourceLocation;
-import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
-import thecodex6824.tcresearchpatcher.json.JsonUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import net.minecraft.util.ResourceLocation;
+import thecodex6824.tcresearchpatcher.json.JsonSchemaException;
+import thecodex6824.tcresearchpatcher.json.JsonUtils;
 
 public class AdvancementResearchInfo {
 

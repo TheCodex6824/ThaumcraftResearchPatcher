@@ -1,6 +1,6 @@
-/**
+/*
  *  Thaumcraft Research Patcher
- *  Copyright (c) 2021 TheCodex6824.
+ *  Copyright (c) 2023 TheCodex6824.
  *
  *  This file is part of Thaumcraft Research Patcher.
  *
@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -58,8 +57,6 @@ import thecodex6824.tcresearchpatcher.parser.ScanParserBlock;
 import thecodex6824.tcresearchpatcher.parser.ScanParserEntity;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItem;
 import thecodex6824.tcresearchpatcher.parser.ScanParserItemExtended;
-
-import javax.annotation.Resource;
 
 @Mod(modid = ThaumcraftResearchPatcherApi.MODID, name = ThaumcraftResearchPatcherApi.NAME, version = "@VERSION@",
     certificateFingerprint = "@FINGERPRINT@", useMetadata = true)

@@ -1,6 +1,6 @@
-/**
+/*
  *  Thaumcraft Research Patcher
- *  Copyright (c) 2022 TheCodex6824.
+ *  Copyright (c) 2023 TheCodex6824.
  *
  *  This file is part of Thaumcraft Research Patcher.
  *
@@ -20,7 +20,14 @@
 
 package thecodex6824.tcresearchpatcher.advancement;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
@@ -38,15 +45,6 @@ import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.api.research.ResearchStage;
 import thaumcraft.common.lib.research.ResearchManager;
 import thecodex6824.tcresearchpatcher.api.ThaumcraftResearchPatcherApi;
-
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(modid = ThaumcraftResearchPatcherApi.MODID)
 public class AdvancementListener {
